@@ -9,7 +9,8 @@ class Program
         Console.WriteLine("*** Práctico 1 ***");
 
         //Ej1();
-        Ej2();
+        //Ej2();
+        Ej3();
 
     }
 
@@ -46,7 +47,7 @@ class Program
 
     }
 
-    private static void Ej2()
+    static void Ej2()
     {
         Console.WriteLine("*** Ejercicio 2 ***");
 
@@ -59,10 +60,38 @@ class Program
 
         void CienCeros()
         {
-            for(int i = 0;i < 100; i++)
+            for (int i = 0; i < 100; i++)
             {
                 Console.Write("0");
             }
+        }
+    }
+
+    static void Ej3()
+    {
+        Console.WriteLine("*** Ejercicio 3 ***");
+        int suma1 = 0;
+        int suma2 = 0;
+
+        Thread t1 = new Thread(() => suma1 = Sumar2(1, 2));
+        Thread t2 = new Thread(() => suma2 = Sumar3(1, 2, 3));
+        t1.Start();
+        t2.Start();
+        t1.Join();
+        t2.Join();
+
+
+        Console.WriteLine("La suma es: " + (suma1 + suma2));
+
+
+        int Sumar2(int a, int b)
+        {
+            return a + b;
+        }
+
+        int Sumar3(int a, int b, int c)
+        {
+            return a + b + c;
         }
     }
 }
