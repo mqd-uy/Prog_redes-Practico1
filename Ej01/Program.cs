@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Runtime.Serialization.Formatters;
+using System.Threading;
 
 namespace Ej01;
 
@@ -10,7 +11,9 @@ class Program
 
         //Ej1();
         //Ej2();
-        Ej3();
+        //Ej3();
+        //Ej4();
+        Ej5();
 
     }
 
@@ -93,5 +96,58 @@ class Program
         {
             return a + b + c;
         }
+    }
+
+    static void Ej4()
+    {
+        Console.WriteLine("*** Ejercicio 4 ***");
+        Console.WriteLine("""
+            
+            Un programa es el código, el proceso es el programa en ejecución en un sistema operativo
+             con un espacio de memoria asignado. Un hilo es la unidad minima de ejecucion, un proceso tiene 
+             como minimo un hilo.
+             Tener varios hilos tiene la ventaja de poder realizar tareas concurrentemente, sin que un hilo
+             solo bloquee la ejecucion del proceso, por ejemplo al esperar por entrada o salida
+            
+            """);
+    }
+
+    static void Ej5()
+    {
+        Console.WriteLine("*** Ejercicio 5 ***");
+
+        bool start = false;
+        
+        for (int i = 0; i < 10; i++)
+        {
+            int num = i + 1;
+            new Thread(() =>
+            {
+                HiloSaluda(num);
+            }).Start();
+        }
+
+        while (!start)
+        {
+            Console.Write("Ingrese start: ");
+            string input = Console.ReadLine();
+            if (input == "start")
+                start = true;
+        }
+
+        Console.WriteLine("Hilo principal");
+
+        void HiloSaluda(int i)
+        {
+            while (true)
+            {
+                if (start)
+                {
+                    Console.WriteLine("Hola, soy el hilo " + i);
+                    break;
+                }
+            }
+        }
+
     }
 }
