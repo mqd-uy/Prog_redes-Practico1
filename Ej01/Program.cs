@@ -6,6 +6,15 @@ class Program
 {
     static void Main(string[] args)
     {
+        Console.WriteLine("*** Práctico 1 ***");
+
+        //Ej1();
+        Ej2();
+
+    }
+
+    static void Ej1()
+    {
         Console.WriteLine("*** Ejercicio 1 ***");
         // en realidad Thread siempre espera un delegado
         ThreadStart delegado1 = new ThreadStart(() => Imprime("X"));
@@ -16,7 +25,7 @@ class Program
         // forma 1 con join
         t1.Join();
         t2.Start();
-        
+
         // forma 2 chequeando estado a que haya finalizado hilo 1
         // while (t1.ThreadState != ThreadState.Stopped)
         // {
@@ -25,14 +34,35 @@ class Program
         // t2.Start();
 
         Console.WriteLine("Finalizado programa");
+
+        void Imprime(string message, int cant = 20)
+        {
+            for (int i = 0; i < cant; i++)
+            {
+                Console.WriteLine(message + " nro " + (i + 1));
+                Thread.Sleep(100);
+            }
+        }
+
     }
 
-    static void Imprime(string message, int cant = 20)
+    private static void Ej2()
     {
-        for (int i = 0; i < cant; i++)
+        Console.WriteLine("*** Ejercicio 2 ***");
+
+        Thread t1 = new Thread(CienCeros);
+        t1.Start();
+        t1.Join();
+
+        Console.WriteLine("100 ceros finalizados en otro hilo");
+
+
+        void CienCeros()
         {
-            Console.WriteLine(message + " nro " + (i + 1));
-            Thread.Sleep(100);
+            for(int i = 0;i < 100; i++)
+            {
+                Console.Write("0");
+            }
         }
     }
 }
