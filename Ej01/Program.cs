@@ -13,7 +13,16 @@ class Program
         // pero se puede hacer el atajo y pasar el metodo o una funcion anonima con la invocacion
         Thread t2 = new Thread(() => Imprime("Y"));
         t1.Start();
+        // forma 1 con join
+        t1.Join();
         t2.Start();
+        
+        // forma 2 chequeando estado a que haya finalizado hilo 1
+        // while (t1.ThreadState != ThreadState.Stopped)
+        // {
+        //     Thread.Sleep(50);
+        // }
+        // t2.Start();
 
         Console.WriteLine("Finalizado programa");
     }
