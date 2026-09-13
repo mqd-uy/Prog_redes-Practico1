@@ -136,9 +136,10 @@ class Program
             if (input == "start")
             {
                 start = true;
-                Monitor.Enter(candado);
-                Monitor.Pulse(candado);
-                Monitor.Exit(candado);
+                lock (candado)
+                {
+                    Monitor.Pulse(candado);
+                }
             }
         }
 
@@ -146,12 +147,13 @@ class Program
 
         void HiloSaluda(int i)
         {
-            Monitor.Enter(candado);
-
-            Monitor.Wait(candado);
-            Console.WriteLine("Hola, soy el hilo " + i);
-            Monitor.Pulse(candado);
-            Monitor.Exit(candado);
+            Console.WriteLine("Empezó hilo " + i);
+            lock (candado)
+            {
+                Monitor.Wait(candado);
+                Console.WriteLine("Hola, soy el hilo " + i);
+                Monitor.Pulse(candado);
+            }
         }
     }
 
