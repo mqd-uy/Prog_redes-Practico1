@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization.Formatters;
-using System.Threading;
+﻿using System.Threading;
 
 namespace Ej01;
 
@@ -14,8 +13,8 @@ class Program
         //Ej3();
         //Ej4();
         //Ej5();
-        Ej6();
-        //Ej7();
+        //Ej6();
+        Ej7();
 
     }
 
@@ -202,5 +201,48 @@ class Program
                 }
             }
         }
+    }
+
+    static void Ej7()
+    {
+        Console.WriteLine("*** Ejercicio 7 ***");
+
+        object candado = new object();
+
+        // trato a las personas como un string, el nombre es lo que me interesa
+        List<string> personas = new List<string>();
+
+        for (int i = 0; i < 5; i++)
+        {
+            int num = i + 1;
+            new Thread(() =>
+            {
+                try
+                {
+                    PedirDatos(num);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }).Start();
+        }
+
+        void PedirDatos(int num)
+        {
+            // el lock lo hago para todo el I/O porque estoy en una sola ventana, si cada hilo fuera su propia ventana
+            // el lock seria solo para el leer/escribir lista de nombres
+            lock (candado)
+            {
+                Console.WriteLine($"Pidiendo datos desde hilo: {num}");
+                Console.Write("Nombre: ");
+                string nombre = Console.ReadLine();
+                if (personas.Contains(nombre))
+                    throw new Exception("Ya existe una persona con ese nombre, no se agregará");
+                personas.Add(nombre);
+                Console.WriteLine($"{nombre} agregado, ahora hay {personas.Count} personas");
+            }
+        }
+
     }
 }
