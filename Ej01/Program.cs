@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Threading;
+﻿using System.Threading;
 
 namespace Ej01;
 
@@ -17,7 +16,8 @@ class Program
         //Ej6();
         //Ej7();
         //Ej8();
-        Ej9();
+        // Ej9();
+        Ej10();
     }
 
     static void Ej1()
@@ -352,13 +352,14 @@ class Program
                 if (recaudado >= maxRecaudacion)
                 {
                     Console.WriteLine("Me quedé sin entrear, me voy para casa (" + id + ")");
-            semDiscoteca.Release();
+                    semDiscoteca.Release();
                     return;
                 }
+
                 recaudado += costoEntrada;
                 Console.WriteLine(($"Persona {id} ingresando: recaudado $" + recaudado));
             }
-            
+
             salidaPersona(id);
         }
 
@@ -367,6 +368,65 @@ class Program
             Thread.Sleep(random.Next((100)));
             Console.WriteLine(($"Persona {id} saliendo"));
             semDiscoteca.Release();
+        }
+    }
+
+    static void Ej10()
+    {
+        Console.WriteLine("*** Ejercicio 10 ***");
+
+        Random random = new Random();
+        const int maxPersonas = 100;
+        const int cantPersonasVan = 300;
+        const int maxRecaudacion = 50000;
+        const int costoEntrada = 300;
+        int recaudado = 0;
+        int personasAdentro = 0;
+
+        object discoteca = new object();
+
+        Thread[] hilos = new Thread[cantPersonasVan];
+        for (int i = 0; i < cantPersonasVan; i++)
+        {
+            int id = i + 1;
+            hilos[i] = new Thread(() => { ingresoPersona(id); });
+        }
+
+        foreach (Thread hilo in hilos)
+            hilo.Start();
+
+        void ingresoPersona(int id)
+        {
+            // para mostrar en consola lo recaudado cuando entró esta persona (hilo) a la disco
+            int recaudadoHilo;
+            lock (discoteca)
+            {
+                if (personasAdentro >= maxPersonas)
+                    Monitor.Wait(discoteca);
+                if (recaudado >= maxRecaudacion)
+                {
+                    Console.WriteLine("Me quedé sin entrear, me voy para casa (" + id + ")");
+                    return;
+                }
+                recaudado += costoEntrada;
+                personasAdentro++;
+                recaudadoHilo = recaudado;
+            }
+            Console.WriteLine(($"Persona {id} ingresando: recaudado $" + recaudadoHilo));
+            
+            salidaPersona(id);
+        }
+
+        void salidaPersona(int id)
+        {
+            Thread.Sleep(random.Next((100)));
+            lock (discoteca)
+            {
+                personasAdentro--;
+                Monitor.PulseAll(discoteca);
+            }
+
+            Console.WriteLine(($"Persona {id} saliendo"));
         }
     }
 }
