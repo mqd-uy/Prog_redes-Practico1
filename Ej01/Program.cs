@@ -13,7 +13,9 @@ class Program
         //Ej2();
         //Ej3();
         //Ej4();
-        Ej5();
+        //Ej5();
+        Ej6();
+        //Ej7();
 
     }
 
@@ -157,4 +159,48 @@ class Program
         }
     }
 
+    static void Ej6()
+    {
+        Console.WriteLine("*** Ejercicio 6 ***");
+
+        object candado = new object();
+
+        int cantHilos;
+        bool seImprimio = false;
+
+        Console.Write("Cuantos hilos?: ");
+        cantHilos = int.Parse(Console.ReadLine()!);
+
+        for (int i = 0; i < cantHilos; i++)
+        {
+            int num = i + 1;
+            Thread t = new Thread(() => Hilo(num));
+            t.IsBackground = true;
+            t.Start();
+        }
+
+        lock (candado)
+        {
+            while (!seImprimio)
+            {
+                Monitor.Wait(candado);
+            }
+        }
+
+        Console.WriteLine("Finalizando programa, hilos en background por abortarse");
+
+        void Hilo(int num)
+        {
+            lock (candado)
+            {
+                if (!seImprimio)
+                {
+                    seImprimio = true;
+                    Console.WriteLine("Bienvenidos a Programación de Redes 2026 desde el hilo {0}", num);
+                    // le avisa al hilo principal que quedó en wait
+                    Monitor.Pulse(candado);
+                }
+            }
+        }
+    }
 }
