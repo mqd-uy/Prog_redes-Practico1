@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Globalization;
+using System.Threading;
 
 namespace Ej01;
 
@@ -15,8 +16,8 @@ class Program
         //Ej5();
         //Ej6();
         //Ej7();
-        Ej8();
-
+        //Ej8();
+        Ej9();
     }
 
     static void Ej1()
@@ -49,7 +50,6 @@ class Program
                 Thread.Sleep(100);
             }
         }
-
     }
 
     static void Ej2()
@@ -104,14 +104,14 @@ class Program
     {
         Console.WriteLine("*** Ejercicio 4 ***");
         Console.WriteLine("""
-            
-            Un programa es el código, el proceso es el programa en ejecución en un sistema operativo
-             con un espacio de memoria asignado. Un hilo es la unidad minima de ejecucion, un proceso tiene 
-             como minimo un hilo.
-             Tener varios hilos tiene la ventaja de poder realizar tareas concurrentemente, sin que un hilo
-             solo bloquee la ejecucion del proceso, por ejemplo al esperar por entrada o salida
-            
-            """);
+
+                          Un programa es el código, el proceso es el programa en ejecución en un sistema operativo
+                           con un espacio de memoria asignado. Un hilo es la unidad minima de ejecucion, un proceso tiene 
+                           como minimo un hilo.
+                           Tener varios hilos tiene la ventaja de poder realizar tareas concurrentemente, sin que un hilo
+                           solo bloquee la ejecucion del proceso, por ejemplo al esperar por entrada o salida
+
+                          """);
     }
 
     static void Ej5()
@@ -125,10 +125,7 @@ class Program
         for (int i = 0; i < 10; i++)
         {
             int num = i + 1;
-            new Thread(() =>
-            {
-                HiloSaluda(num);
-            }).Start();
+            new Thread(() => { HiloSaluda(num); }).Start();
         }
 
         while (!start)
@@ -244,7 +241,6 @@ class Program
                 Console.WriteLine($"{nombre} agregado, ahora hay {personas.Count} personas");
             }
         }
-
     }
 
     static void Ej8()
@@ -293,6 +289,7 @@ class Program
                 Monitor.Wait(candado);
             }
         }
+
         double sumaCocientes = 0;
         cocientes.ForEach((n) => sumaCocientes += n);
         Console.WriteLine("El promedio de los cocientes es: " + (sumaCocientes / cocientes.Count));
@@ -311,13 +308,65 @@ class Program
 
         List<int> GenerarListaEnteros(int cant)
         {
-            Random genarador = new Random();
+            Random generador = new Random();
             List<int> lista = new List<int>();
             for (int i = 0; i < cant; i++)
             {
-                lista.Add(genarador.Next(10));
+                lista.Add(generador.Next(10));
             }
+
             return lista;
+        }
+    }
+
+    static void Ej9()
+    {
+        Console.WriteLine("*** Ejercicio 9 ***");
+
+        Random random = new Random();
+        const int maxPersonas = 100;
+        const int cantPersonasVan = 300;
+        const int maxRecaudacion = 50000;
+        const int costoEntrada = 300;
+        int recaudado = 0;
+        Semaphore semDiscoteca = new Semaphore(maxPersonas, maxPersonas);
+        object discoteca = new object();
+
+        Thread[] hilos = new Thread[cantPersonasVan];
+        for (int i = 0; i < cantPersonasVan; i++)
+        {
+            int id = i + 1;
+            hilos[i] = new Thread(() => { ingresoPersona(id); });
+        }
+
+        foreach (Thread hilo in hilos)
+            hilo.Start();
+
+        void ingresoPersona(int id)
+        {
+            semDiscoteca.WaitOne();
+
+            lock (discoteca)
+            {
+                // si ya no se entra más, se van para la casa
+                if (recaudado >= maxRecaudacion)
+                {
+                    Console.WriteLine("Me quedé sin entrear, me voy para casa (" + id + ")");
+            semDiscoteca.Release();
+                    return;
+                }
+                recaudado += costoEntrada;
+                Console.WriteLine(($"Persona {id} ingresando: recaudado $" + recaudado));
+            }
+            
+            salidaPersona(id);
+        }
+
+        void salidaPersona(int id)
+        {
+            Thread.Sleep(random.Next((100)));
+            Console.WriteLine(($"Persona {id} saliendo"));
+            semDiscoteca.Release();
         }
     }
 }
