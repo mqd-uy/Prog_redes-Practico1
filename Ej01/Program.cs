@@ -17,7 +17,8 @@ class Program
         //Ej7();
         //Ej8();
         // Ej9();
-        Ej10();
+        // Ej10();
+        Ej11();
     }
 
     static void Ej1()
@@ -408,12 +409,14 @@ class Program
                     Console.WriteLine("Me quedé sin entrear, me voy para casa (" + id + ")");
                     return;
                 }
+
                 recaudado += costoEntrada;
                 personasAdentro++;
                 recaudadoHilo = recaudado;
             }
+
             Console.WriteLine(($"Persona {id} ingresando: recaudado $" + recaudadoHilo));
-            
+
             salidaPersona(id);
         }
 
@@ -427,6 +430,87 @@ class Program
             }
 
             Console.WriteLine(($"Persona {id} saliendo"));
+        }
+    }
+
+    static void Ej11()
+    {
+        Console.WriteLine("*** Ejercicio 11 ***");
+
+        Random random = new Random();
+        int[] buffer = new int [5];
+        int ultimaPos = 0;
+        int cantConsumidores = 0;
+        bool escribiendo = false;
+
+        Thread[] productores = new Thread[4];
+        Thread[] consumidores = new Thread[10];
+
+        for (int i = 0; i < productores.Length; i++)
+        {
+            productores[i] = new Thread(() => Producir());
+        }
+
+        for (int i = 0; i < consumidores.Length; i++)
+        {
+            consumidores[i] = new Thread(() => Consumir());
+        }
+
+        foreach (Thread productor in productores)
+            productor.Start();
+        foreach (Thread consumidor in consumidores)
+            consumidor.Start();
+
+        void Producir()
+        {
+            while (true)
+            {
+                // produciendo
+                int producto = random.Next(10);
+                Thread.Sleep(random.Next(1000));
+
+                lock (buffer)
+                {
+                    while (escribiendo)
+                        Monitor.Wait(buffer);
+                    escribiendo = true;
+                }
+
+                lock (buffer)
+                {
+                    while (cantConsumidores > 0)
+                        Monitor.Wait(buffer);
+                    ultimaPos = (ultimaPos + 1) % buffer.Length;
+                    buffer[ultimaPos] = producto;
+                    Console.WriteLine("escribí " + producto);
+                    escribiendo = false;
+                    Monitor.PulseAll(buffer);
+                }
+            }
+        }
+
+        void Consumir()
+        {
+            while (true)
+            {
+                // espera aleatoria
+                Thread.Sleep(random.Next(5000));
+
+                lock (buffer)
+                {
+                    while (escribiendo)
+                        Monitor.Wait(buffer);
+                    cantConsumidores++;
+                }
+
+                Console.WriteLine("Estoy leyendo " + buffer[ultimaPos]);
+
+                lock (buffer)
+                {
+                    cantConsumidores--;
+                    Monitor.PulseAll(buffer);
+                }
+            }
         }
     }
 }
