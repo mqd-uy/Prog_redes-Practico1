@@ -14,7 +14,8 @@ class Program
         //Ej4();
         //Ej5();
         //Ej6();
-        Ej7();
+        //Ej7();
+        Ej8();
 
     }
 
@@ -244,5 +245,79 @@ class Program
             }
         }
 
+    }
+
+    static void Ej8()
+    {
+        Console.WriteLine("*** Ejercicio 8 ***");
+
+        object candado = new object();
+        int hilosTerminados = 0;
+
+        const int largoListas = 10;
+
+        List<int> listaA = GenerarListaEnteros(largoListas);
+        List<int> listaB = GenerarListaEnteros(largoListas);
+
+        List<double> cocientes = new List<double>();
+
+
+        for (int i = 0; i < largoListas; i++)
+        {
+            int num = i;
+            new Thread(() =>
+            {
+                try
+                {
+                    Cocientes(num);
+                }
+                catch (DivideByZeroException ex)
+                {
+                    Console.WriteLine("No se puede dividir por 0. Cociente no tenido en cuanta para el promedio");
+                }
+                finally
+                {
+                    lock (candado)
+                    {
+                        hilosTerminados++;
+                        Monitor.Pulse(candado);
+                    }
+                }
+            }).Start();
+        }
+
+        lock (candado)
+        {
+            while (hilosTerminados < largoListas)
+            {
+                Monitor.Wait(candado);
+            }
+        }
+        double sumaCocientes = 0;
+        cocientes.ForEach((n) => sumaCocientes += n);
+        Console.WriteLine("El promedio de los cocientes es: " + (sumaCocientes / cocientes.Count));
+
+        void Cocientes(int num)
+        {
+            int a = listaA[num];
+            int b = listaB[num];
+            // si hay division por 0 no se agrega
+            if (b == 0)
+                throw new DivideByZeroException();
+            double cociente = (double)a / b;
+            cocientes.Add(cociente);
+            Console.WriteLine($"Hilo {num + 1} cociente: {cociente}");
+        }
+
+        List<int> GenerarListaEnteros(int cant)
+        {
+            Random genarador = new Random();
+            List<int> lista = new List<int>();
+            for (int i = 0; i < cant; i++)
+            {
+                lista.Add(genarador.Next(10));
+            }
+            return lista;
+        }
     }
 }
