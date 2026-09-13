@@ -116,8 +116,10 @@ class Program
     {
         Console.WriteLine("*** Ejercicio 5 ***");
 
+        object candado = new Object();
+
         bool start = false;
-        
+
         for (int i = 0; i < 10; i++)
         {
             int num = i + 1;
@@ -132,22 +134,25 @@ class Program
             Console.Write("Ingrese start: ");
             string input = Console.ReadLine();
             if (input == "start")
+            {
                 start = true;
+                Monitor.Enter(candado);
+                Monitor.Pulse(candado);
+                Monitor.Exit(candado);
+            }
         }
 
         Console.WriteLine("Hilo principal");
 
         void HiloSaluda(int i)
         {
-            while (true)
-            {
-                if (start)
-                {
-                    Console.WriteLine("Hola, soy el hilo " + i);
-                    break;
-                }
-            }
-        }
+            Monitor.Enter(candado);
 
+            Monitor.Wait(candado);
+            Console.WriteLine("Hola, soy el hilo " + i);
+            Monitor.Pulse(candado);
+            Monitor.Exit(candado);
+        }
     }
+
 }
