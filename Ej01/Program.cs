@@ -18,7 +18,8 @@ class Program
         //Ej8();
         // Ej9();
         // Ej10();
-        Ej11();
+        // Ej11();
+        Ej12();
     }
 
     static void Ej1()
@@ -510,6 +511,79 @@ class Program
                     cantConsumidores--;
                     Monitor.PulseAll(buffer);
                 }
+            }
+        }
+    }
+
+    static void Ej12()
+    {
+        Console.WriteLine("*** Ejercicio 12 ***");
+
+        Random random = new Random();
+        const int cantProductores = 4;
+        const int cantConsumidores = 10;
+        int[] buffer = new int [5];
+        int ultimaPos = 0;
+        int cantLeyendo = 0;
+        SemaphoreSlim semProductores = new SemaphoreSlim(1, 1);
+        //SemaphoreSlim semConsumidores = new SemaphoreSlim(cantConsumidores, cantConsumidores);
+
+        Thread[] productores = new Thread[cantProductores];
+        Thread[] consumidores = new Thread[cantConsumidores];
+
+        for (int i = 0; i < productores.Length; i++)
+        {
+            productores[i] = new Thread(() => Producir());
+        }
+
+        for (int i = 0; i < consumidores.Length; i++)
+        {
+            consumidores[i] = new Thread(() => Consumir());
+        }
+
+        foreach (Thread productor in productores)
+            productor.Start();
+        foreach (Thread consumidor in consumidores)
+            consumidor.Start();
+
+        void Producir()
+        {
+            while (true)
+            {
+                // produciendo
+                int producto = random.Next(10);
+                Thread.Sleep(random.Next(1000));
+
+                semProductores.Wait();
+                while (cantLeyendo > 0)
+                {
+                    semProductores.Release();
+                    semProductores.Wait();
+                }
+
+                ultimaPos = (ultimaPos + 1) % buffer.Length;
+                buffer[ultimaPos] = producto;
+                Console.WriteLine("escribí " + producto);
+                semProductores.Release();
+            }
+        }
+
+        void Consumir()
+        {
+            while (true)
+            {
+                // espera aleatoria
+                Thread.Sleep(random.Next(5000));
+
+                semProductores.Wait();
+                cantLeyendo++;
+                semProductores.Release();
+
+                Console.WriteLine("Estoy leyendo " + buffer[ultimaPos]);
+
+                semProductores.Wait();
+                cantLeyendo--;
+                semProductores.Release();
             }
         }
     }
