@@ -21,7 +21,8 @@ class Program
         // Ej10();
         // Ej11();
         // Ej12();
-        Ej13();
+        //Ej13();
+        Ej14();
     }
 
     static void Ej1()
@@ -598,7 +599,7 @@ class Program
         // string frase = Console.ReadLine()!;
         // Console.Write("Ingrese número: ");
         // int num = int.Parse(Console.ReadLine()!);
-        
+
         string frase = "Hola como estas";
         int num = 58;
 
@@ -608,10 +609,10 @@ class Program
         // NO pude hacer que se termine primero el de los divisores, siempre gana el de la frase!!
         hiloFrase.Priority = ThreadPriority.Lowest;
         hiloNum.Priority = ThreadPriority.Highest;
-        
+
         hiloFrase.Start();
         hiloNum.Start();
-        
+
         void MostrarFraseInvertida(string frase)
         {
             string fraseInvertida = string.Empty;
@@ -648,6 +649,104 @@ class Program
             stringBuilder.Remove(stringBuilder.Length - 1, 1);
 
             Console.WriteLine(stringBuilder);
+        }
+    }
+
+    static void Ej14()
+    {
+        Console.WriteLine("*** Ejercicio 14 ***");
+
+        Random random = new Random();
+        LectEsc monitor = new LectEsc();
+
+        Thread[] escritores = new Thread[5];
+        Thread[] lectores = new Thread[10];
+
+        for (int i = 0; i < escritores.Length; i++)
+            escritores[i] = new Thread(Escritor);
+        for (int i = 0; i < lectores.Length; i++)
+            lectores[i] = new Thread(Lector);
+
+        foreach (Thread escritor in escritores)
+            escritor.Start();
+        foreach (Thread lector in lectores)
+            lector.Start();
+
+        void Escritor()
+        {
+            while (true)
+            {
+                monitor.ComenzarEscribir();
+                Console.WriteLine("Escribiendo...");
+                monitor.FinEscribir();
+                // otras tareas
+                Thread.Sleep(random.Next(500));
+            }
+        }
+
+        void Lector()
+        {
+            while (true)
+            {
+                monitor.ComenzarLeer();
+                Console.WriteLine("Leyendo...");
+                monitor.FinLeer();
+                // otras tareas
+                Thread.Sleep(random.Next(500));
+            }
+        }
+    }
+
+    class LectEsc
+    {
+        private int _cantLec, _cantEsc = 0;
+        private readonly object _noLec = new object();
+        private readonly object _noEsc = new object();
+        private readonly object candado = new object();
+
+        public void ComenzarLeer()
+        {
+            lock (candado)
+            {
+                if (_cantEsc > 0)
+                    Monitor.Wait(candado);
+                // no hay escritores
+                _cantLec++;
+            }
+        }
+
+        public void FinLeer()
+        {
+            lock (candado)
+            {
+                _cantLec--;
+                if (_cantLec == 0)
+                    Monitor.Pulse(candado);
+            }
+        }
+
+        public void ComenzarEscribir()
+        {
+            lock (candado)
+            {
+                _cantEsc++;
+                if (_cantEsc > 1)
+                    Monitor.Wait((candado));
+                // no hay escritores
+
+                if (_cantLec > 0)
+                    Monitor.Wait((candado));
+                // no hay ni lectores ni escritores
+            }
+        }
+
+        public void FinEscribir()
+        {
+            lock (candado)
+            {
+                _cantEsc--;
+                Monitor.Pulse(candado);
+            }
         }
     }
 }
