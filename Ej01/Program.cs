@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Text;
+using System.Threading;
 
 namespace Ej01;
 
@@ -19,7 +20,8 @@ class Program
         // Ej9();
         // Ej10();
         // Ej11();
-        Ej12();
+        // Ej12();
+        Ej13();
     }
 
     static void Ej1()
@@ -585,6 +587,67 @@ class Program
                 cantLeyendo--;
                 semProductores.Release();
             }
+        }
+    }
+
+    static void Ej13()
+    {
+        Console.WriteLine("*** Ejercicio 13 ***");
+
+        // Console.Write("Ingrese frase: ");
+        // string frase = Console.ReadLine()!;
+        // Console.Write("Ingrese número: ");
+        // int num = int.Parse(Console.ReadLine()!);
+        
+        string frase = "Hola como estas";
+        int num = 58;
+
+        Thread hiloFrase = new Thread(() => MostrarFraseInvertida(frase));
+        Thread hiloNum = new Thread(() => MostrarDivisores(num));
+
+        // NO pude hacer que se termine primero el de los divisores, siempre gana el de la frase!!
+        hiloFrase.Priority = ThreadPriority.Lowest;
+        hiloNum.Priority = ThreadPriority.Highest;
+        
+        hiloFrase.Start();
+        hiloNum.Start();
+        
+        void MostrarFraseInvertida(string frase)
+        {
+            string fraseInvertida = string.Empty;
+
+            for (int i = frase.Length - 1; i >= 0; i--)
+            {
+                fraseInvertida += frase[i];
+            }
+
+            Console.WriteLine("La frase invertida es: " + fraseInvertida);
+        }
+
+        void MostrarDivisores(int numero)
+        {
+            List<int> divisores = new List<int>();
+
+            for (int i = 1; i <= numero / 2; i++)
+            {
+                if (numero % i == 0)
+                    divisores.Add(i);
+            }
+
+            divisores.Add(numero);
+
+            StringBuilder stringBuilder = new StringBuilder();
+
+            stringBuilder.Append("Los divisores son: ");
+            foreach (int divisor in divisores)
+            {
+                stringBuilder.Append(divisor);
+                stringBuilder.Append('-');
+            }
+
+            stringBuilder.Remove(stringBuilder.Length - 1, 1);
+
+            Console.WriteLine(stringBuilder);
         }
     }
 }
