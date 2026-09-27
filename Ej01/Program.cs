@@ -442,7 +442,7 @@ class Program
         Console.WriteLine("*** Ejercicio 11 ***");
 
         Random random = new Random();
-        int[] buffer = new int [5];
+        int[] buffer = new int[5];
         int ultimaPos = 0;
         int cantConsumidores = 0;
         bool escribiendo = false;
@@ -525,7 +525,7 @@ class Program
         Random random = new Random();
         const int cantProductores = 4;
         const int cantConsumidores = 10;
-        int[] buffer = new int [5];
+        int[] buffer = new int[5];
         int ultimaPos = 0;
         int cantLeyendo = 0;
         SemaphoreSlim semProductores = new SemaphoreSlim(1, 1);
