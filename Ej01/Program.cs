@@ -213,6 +213,7 @@ class Program
         object candado = new object();
 
         // trato a las personas como un string, el nombre es lo que me interesa
+        // todo agregar datos de persona
         List<string> personas = new List<string>();
 
         for (int i = 0; i < 5; i++)
